@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkoff Calendar Web App</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /*
+        * Variables
+        */
+        :root {
+            --primary-color: #007bff;
+            --primary-dark: #0056b3;
+            --secondary-color: #6c757d;
+            --accent-color: #28a745;
+            --bg-light: #f8f9fa;
+            --bg-medium: #e9ecef;
+            --text-color: #343a40;
+            --border-color: #dee2e6;
+            --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 5px 20px rgba(0, 0, 0, 0.1);
+            --shadow-card-hover: 0 8px 25px rgba(0, 0, 0, 0.15);
+            --red-color: #dc3545;
+            --green-light: #d4edda;
+            --border-radius-base: 8px; /* Slightly smaller radius */
+            --spacing-unit: 10px; /* Reduced base spacing */
+            --font-size-base: 16px; /* Define base font size for consistency */
+            /* NEW: Mobile specific spacing */
+            --spacing-unit-mobile-sm: 6px;
+            --spacing-unit-mobile-md: 8px;
+        }
+
+        /*
+        * Base Styles
+        */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            line-height: 1.6;
+            scroll-behavior: smooth;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align content to the top */
+            min-height: 100vh; /* Full viewport height */
+            font-size: var(--font-size-base); /* Apply base font size */
+            overflow-x: hidden; /* NEW: Prevent horizontal scroll on small screens */
+        }
+
+        /* Centering and Max-width Container */
+        .container {
+            max-width: 1200px; /* Increased max-width */
+            width: 100%;
+            margin: var(--spacing-unit) auto; /* Reduced top/bottom margin for more compact feel */
+            padding: 0 var(--spacing-unit); /* Add padding to the sides */
+            box-sizing: border-box; /* Include padding in width */
+        }
+
+        h1, h2, h3 {
+            color: var(--primary-dark);
+            text-align: center;
+            margin-bottom: calc(2 * var(--spacing-unit));
+            font-weight: 700;
+        }
+
+        h1 { font-size: 2.5em; margin-top: 0; }
+        h2 { font-size: 1.7em; margin-top: 0; }
+        h3 { font-size: 1.3em; margin-top: 0; }
+
+        button {
+            padding: 10px 18px; /* Reduced padding */
+            border: none;
+            border-radius: var(--border-radius-base);
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            font-size: 0.95em; /* Slightly smaller font */
+            font-weight: 600;
+            transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+            margin: calc(0.5 * var(--spacing-unit)); /* Reduced margin */
+            box-shadow: var(--shadow-light);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px; /* Reduced gap */
+            min-width: 100px; /* Adjusted min-width */
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: var(--shadow-light);
+        }
+
+        button.secondary {
+            background-color: var(--secondary-color);
+        }
+        button.secondary:hover {
+            background-color: #5a6268;
+        }
+
+        button.red {
+            background-color: var(--red-color);
+        }
+        button.red:hover {
+            background-color: #c82333;
+        }
+
+        /* New: Icon Button specific styles */
+        button.icon-button {
+            width: 40px; /* Fixed width for square icons */
+            height: 40px; /* Fixed height for square icons */
+            padding: 0; /* No padding, icon will center */
+            font-size: 1.5em; /* Size of the icon */
+            min-width: unset; /* Override min-width */
+            box-shadow: none; /* Lighter touch for icon buttons */
+            border: 1px solid var(--border-color); /* Add a subtle border */
+            background-color: white; /* White background */
+            color: var(--primary-color); /* Primary color for icon */
+        }
+
+        button.icon-button:hover {
+            background-color: var(--bg-medium);
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-light); /* Slight shadow on hover */
+        }
+        button.icon-button.secondary {
+            background-color: white;
+            color: var(--secondary-color);
+            border-color: var(--border-color);
+        }
+        button.icon-button.secondary:hover {
+            background-color: var(--bg-medium);
+            border-color: var(--secondary-color);
+        }
+        button.icon-button.red {
+            background-color: white;
+            color: var(--red-color);
+            border-color: var(--border-color);
+        }
+        button.icon-button.red:hover {
+            background-color: var(--bg-medium);
+            border-color: var(--red-color);
+        }
+
+        input[type="text"],
+        input[type="date"],
+        textarea {
+            padding: 10px; /* Reduced padding */
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-base);
+            width: calc(100% - 20px); /* Account for padding */
+            margin-bottom: var(--spacing-unit); /* Reduced margin */
+            font-size: 0.95em; /* Slightly smaller font */
+            box-sizing: border-box; /* Include padding in width */
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px; /* Reduced margin */
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 0.95em; /* Slightly smaller font */
+        }
+
+        hr {
+            margin: calc(2 * var(--spacing-unit)) 0;
+            border: none;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Page Layout */
+        .page {
+            width: 100%;
+            padding: calc(2 * var(--spacing-unit)); /* Reduced padding */
+            background-color: white;
+            box-shadow: var(--shadow-medium);
+            border-radius: calc(1.2 * var(--border-radius-base));
+            display: none; /* Hidden by default, JS will show */
+            box-sizing: border-box;
+        }
+
+        /* Home Page Specific Styles */
+        #home-page .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-unit);
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+            gap: var(--spacing-unit);
+        }
+        #home-page .section-header h2 {
+            margin: 0;
+            flex-grow: 1;
+            text-align: left;
+            padding-right: var(--spacing-unit);
+            font-size: 1.8em; /* Adjusted */
+        }
+        #home-page .section-header button { /* This is the "Create New Calendar" button */
+            margin: 0;
+            flex-shrink: 0;
+            min-width: unset; /* Allow it to be flexible based on content */
+            font-size: 1em; /* Keep it readable */
+            padding: 10px 18px; /* Consistent padding */
+        }
+
+        #home-page-filters {
+            margin-bottom: calc(1.5 * var(--spacing-unit)); /* Reduced */
+            padding: var(--spacing-unit);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-base);
+            background-color: var(--bg-light);
+        }
+
+        #home-page-filters h3 {
+            margin-top: 0;
+            margin-bottom: var(--spacing-unit);
+            color: var(--text-color);
+            text-align: left;
+            font-size: 1.1em; /* Adjusted */
+        }
+
+        #home-page-filters .filter-inputs {
+            display: flex;
+            gap: var(--spacing-unit);
+            margin-bottom: var(--spacing-unit);
+        }
+        #home-page-filters .filter-inputs > div {
+            flex: 1;
+            min-width: 120px; /* Prevent shrinking too much */
+        }
+        #home-page-filters .filter-inputs input {
+            width: calc(100% - 2px); /* Account for border only, padding handled by box-sizing */
+            margin-bottom: 0;
+        }
+
+        #home-page-filters .filter-actions {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-unit);
+        }
+        #home-page-filters .filter-actions button {
+            flex-grow: 1;
+            margin: 0;
+            min-width: unset; /* Override button min-width for filters */
+        }
+
+
+        #calendar-list {
+            margin-top: calc(1.5 * var(--spacing-unit)); /* Reduced */
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid, min card width slightly smaller */
+            gap: var(--spacing-unit); /* Reduced gap between cards */
+        }
+
+        .calendar-item {
+            background-color: var(--bg-medium);
+            padding: calc(1.2 * var(--spacing-unit)); /* Reduced padding */
+            border-radius: var(--border-radius-base);
+            display: flex;
+            flex-direction: column; /* Stack content vertically */
+            justify-content: space-between;
+            box-shadow: var(--shadow-light);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .calendar-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-card-hover);
+        }
+
+        .calendar-item strong {
+            font-size: 1.3em; /* Slightly smaller */
+            color: var(--primary-dark);
+            margin-bottom: 6px;
+            word-break: break-word;
+            font-weight: 700;
+            display: block;
+            text-align: left; /* Align calendar name to left */
+        }
+
+        .calendar-item .stamp-summary {
+            font-size: 0.9em; /* Slightly smaller */
+            color: var(--secondary-color);
+            margin-top: var(--spacing-unit);
+            margin-bottom: var(--spacing-unit); /* Reduced */
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px; /* Reduced gap */
+            align-items: center;
+            line-height: 1.3;
+        }
+
+        .calendar-item .stamp-summary span {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 6px; /* Reduced padding */
+            background-color: var(--bg-light);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-size: 0.85em; /* Ensure text fits */
+        }
+
+        .calendar-item .item-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 6px; /* Reduced gap */
+            margin-top: auto; /* Push to bottom if content is uneven */
+            flex-wrap: wrap; /* Allow buttons to wrap */
+        }
+        .calendar-item .item-actions button {
+            /* These are now icon-buttons, so their styles are defined in .icon-button */
+            margin: 0;
+            flex-grow: 0; /* Don't grow aggressively */
+        }
+
+        #no-calendars-message {
+            text-align: center;
+            color: var(--secondary-color);
+            font-style: italic;
+            padding: calc(1.5 * var(--spacing-unit));
+            border: 1px dashed var(--border-color);
+            border-radius: var(--border-radius-base);
+            margin-top: calc(2 * var(--spacing-unit));
+        }
+
+        /* Local Data Actions Section */
+        #local-data-actions {
+            margin-top: calc(1.5 * var(--spacing-unit)); /* Reduced */
+            padding: var(--spacing-unit);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-base);
+            background-color: var(--bg-light);
+            text-align: center;
+        }
+        #local-data-actions h3 {
+            margin-bottom: var(--spacing-unit);
+            color: var(--text-color);
+            font-size: 1.1em; /* Adjusted */
+        }
+        #local-data-actions .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-unit);
+            flex-wrap: wrap;
+        }
+        #local-data-actions button {
+            margin: 0;
+            flex-grow: 1;
+            max-width: 160px; /* Limit button width */
+            font-size: 0.95em; /* Consistent with other buttons */
+            padding: 10px 15px; /* Consistent padding */
+        }
+
+        /* Create Calendar Page Styles */
+        #create-calendar-page h1 {
+            margin-bottom: calc(1.5 * var(--spacing-unit));
+        }
+        #create-calendar-page label {
+            margin-bottom: 6px;
+        }
+        #create-calendar-page input[type="text"] {
+            margin-bottom: calc(1.5 * var(--spacing-unit));
+        }
+        #create-calendar-page p {
+            margin-top: -6px; /* Adjust spacing below label */
+            margin-bottom: var(--spacing-unit);
+            font-size: 0.85em; /* Slightly smaller */
+        }
+
+        #create-calendar-page .emoji-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px; /* Reduced gap */
+            margin-bottom: calc(1.5 * var(--spacing-unit));
+            border: 1px solid var(--border-color);
+            padding: var(--spacing-unit);
+            border-radius: var(--border-radius-base);
+            min-height: 50px; /* Reduced */
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-light);
+        }
+
+        .emoji-option {
+            font-size: 2em; /* Slightly smaller emojis */
+            cursor: pointer;
+            padding: 6px 10px; /* Reduced padding */
+            border: 2px solid transparent;
+            border-radius: var(--border-radius-base);
+            transition: all 0.2s ease;
+            line-height: 1;
+            background-color: white;
+            box-shadow: var(--shadow-light);
+        }
+
+        .emoji-option:hover {
+            background-color: var(--bg-medium);
+            border-color: var(--primary-color);
+            transform: scale(1.05); /* Slightly less aggressive scale */
+            box-shadow: var(--shadow-medium);
+        }
+
+        .emoji-option.selected {
+            background-color: var(--green-light);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.3), var(--shadow-medium);
+            transform: scale(1.1); /* Slightly less aggressive scale */
+        }
+
+        .emoji-option.selected:hover {
+            background-color: #c3e6cb;
+        }
+
+        #create-calendar-page .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-unit);
+            margin-top: var(--spacing-unit);
+        }
+        #create-calendar-page .form-actions button {
+            margin: 0;
+            min-width: unset;
+        }
+
+
+        /* Calendar View Styles */
+        #calendar-view-page .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: var(--spacing-unit); /* Reduced */
+            margin-bottom: var(--spacing-unit); /* Reduced */
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: var(--spacing-unit);
+        }
+        #calendar-view-page .calendar-header h2 {
+            margin: 0;
+            flex-grow: 1;
+            text-align: center;
+            font-size: 1.8em; /* Reduced */
+            min-width: 180px; /* Prevent name from becoming too small */
+        }
+        #calendar-view-page .calendar-header .header-buttons {
+            display: flex;
+            gap: var(--spacing-unit);
+            flex-shrink: 0;
+        }
+        #calendar-view-page .calendar-header button {
+            margin: 0;
+            min-width: unset; /* Allow buttons to be compact */
+            flex-grow: 1;
+            font-size: 0.9em; /* Smaller */
+            padding: 8px 12px; /* Smaller */
+        }
+        #calendar-view-page #open-batch-actions-btn {
+            gap: 6px; /* Icon + text button */
+        }
+
+        #calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: calc(1.2 * var(--spacing-unit)); /* Reduced */
+            background-color: var(--bg-light);
+            padding: calc(0.8 * var(--spacing-unit)); /* Reduced padding */
+            border-radius: var(--border-radius-base);
+            box-shadow: var(--shadow-light);
+        }
+
+        #current-month-year {
+            font-size: 1.4em; /* Reduced */
+            font-weight: bold;
+            color: var(--primary-color);
+            flex-grow: 1;
+            text-align: center;
+            white-space: nowrap; /* Prevent wrapping */
+        }
+
+        #calendar-nav button {
+            min-width: 90px; /* Slightly smaller */
+            padding: 8px 12px; /* Smaller */
+            margin: 0;
+            font-size: 0.9em;
+        }
+
+        #calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px; /* Reduced gap */
+            background-color: var(--bg-medium);
+            padding: calc(0.8 * var(--spacing-unit)); /* Reduced padding */
+            border-radius: var(--border-radius-base);
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+        }
+
+        .day-name {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px 4px; /* Reduced padding */
+            border-radius: 5px; /* Reduced */
+            font-size: 0.9em; /* Reduced */
+        }
+
+        .date-cell {
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-base);
+            min-height: 90px; /* Reduced height */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Distribute content */
+            align-items: center;
+            padding: 6px; /* Reduced padding */
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        .date-cell:hover {
+            background-color: #f0f4f8;
+            border-color: var(--primary-color);
+            transform: translateY(-1px); /* Less aggressive transform */
+            box-shadow: var(--shadow-light); /* Lighter shadow */
+        }
+
+        .date-number {
+            font-size: 0.8em; /* Reduced */
+            font-weight: 600;
+            color: var(--secondary-color);
+            align-self: flex-start;
+            padding: 1px 5px; /* Reduced */
+            background-color: var(--bg-light);
+            border-radius: 4px; /* Reduced */
+            margin-bottom: 5px; /* Space between number and stamp */
+        }
+
+        .date-stamp {
+            font-size: 2.8em; /* Reduced */
+            text-align: center;
+            flex-grow: 1; /* Takes available space */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            min-height: 35px; /* Reduced */
+        }
+
+        .date-note-preview {
+            font-size: 0.65em; /* Reduced */
+            color: #555;
+            text-align: center;
+            margin-top: auto; /* Push to bottom */
+            padding-top: 4px;
+            border-top: 1px dashed var(--border-color);
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            display: block;
+            line-height: 1.3;
+            min-height: 1.3em; /* Reserve space */
+            box-sizing: border-box;
+        }
+
+        .empty-cell {
+            background-color: var(--bg-light);
+            border: 1px dashed var(--border-color);
+            border-radius: var(--border-radius-base);
+            visibility: hidden; /* Keep it hidden but occupy space */
+        }
+
+        /* Modal Styles (General for all modals) */
+        .modal {
+            display: flex;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.75); /* Darker overlay */
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-unit);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .modal.is-visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: auto;
+            padding: calc(1.5 * var(--spacing-unit)); /* Reduced padding */
+            border-radius: calc(1.2 * var(--border-radius-base));
+            box-shadow: var(--shadow-medium);
+            max-width: 500px; /* Slightly smaller max width */
+            width: 95%;
+            text-align: center;
+            position: relative;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .modal.is-visible .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            margin-bottom: calc(1.2 * var(--spacing-unit));
+            color: var(--primary-dark);
+            text-align: center;
+            font-size: 1.4em; /* Reduced */
+        }
+
+        .modal-stamp-options-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px; /* Reduced gap */
+            justify-content: center;
+            margin-top: var(--spacing-unit);
+            margin-bottom: calc(1.2 * var(--spacing-unit));
+            max-height: 180px; /* Reduced height */
+            overflow-y: auto;
+            padding: 8px; /* Reduced padding */
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-base);
+            background-color: var(--bg-light);
+        }
+        
+        /* Custom scrollbar for stamp options */
+        .modal-stamp-options-container::-webkit-scrollbar {
+            width: 6px; /* Thinner scrollbar */
+        }
+        .modal-stamp-options-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .modal-stamp-options-container::-webkit-scrollbar-thumb {
+            background: #aaa;
+            border-radius: 10px;
+        }
+        .modal-stamp-options-container::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+
+
+        .stamp-option-modal {
+            font-size: 3em; /* Reduced */
+            padding: 6px 10px; /* Reduced padding */
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: var(--border-radius-base);
+            transition: all 0.2s ease;
+            background-color: white;
+            box-shadow: var(--shadow-light);
+            line-height: 1; /* Prevent extra space around emojis */
+        }
+
+        .stamp-option-modal:hover {
+            background-color: var(--bg-medium);
+            border-color: var(--primary-color);
+            transform: scale(1.05); /* Less aggressive scale */
+            box-shadow: var(--shadow-medium);
+        }
+
+        .stamp-option-modal.selected {
+            background-color: var(--green-light);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.3), var(--shadow-medium);
+            transform: scale(1.1); /* Less aggressive scale */
+        }
+        .stamp-option-modal.selected:hover {
+            background-color: #c3e6cb;
+        }
+
+
+        .close-button {
+            color: var(--secondary-color);
+            position: absolute;
+            top: 10px; /* Adjusted position */
+            right: 15px; /* Adjusted position */
+            font-size: 28px; /* Reduced size */
+            font-weight: bold;
+            transition: color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: var(--red-color);
+        }
+
+        #modal-actions {
+            display: flex;
+            justify-content: center; /* Center buttons */
+            margin-top: var(--spacing-unit);
+            gap: var(--spacing-unit);
+            flex-wrap: wrap; /* Allow wrapping */
+        }
+        #modal-actions button {
+            margin: 0;
+            flex-grow: 1;
+            max-width: 160px; /* Limit individual button width */
+            font-size: 0.95em;
+            padding: 10px 15px;
+        }
+
+        /* Batch Actions Modal specific styles */
+        #batch-actions-modal .date-inputs {
+            display: flex;
+            gap: var(--spacing-unit);
+            margin-bottom: var(--spacing-unit);
+        }
+        #batch-actions-modal .date-inputs div {
+            flex: 1;
+            min-width: 120px; /* Prevent shrinking too much */
+        }
+        #batch-actions-modal .date-inputs input {
+            width: calc(100% - 2px); /* Account for border only */
+            margin-bottom: 0;
+        }
+        #batch-actions-modal p {
+            font-size: 0.8em; /* Reduced */
+            margin-top: 0;
+            margin-bottom: var(--spacing-unit);
+        }
+
+        /* Edit Calendar Modal Specific Styles */
+        #edit-calendar-modal h3 {
+            margin-bottom: var(--spacing-unit);
+        }
+        #edit-calendar-modal p {
+            margin-top: -6px; /* Adjust spacing below label */
+            margin-bottom: var(--spacing-unit);
+            font-size: 0.85em; /* Reduced */
+        }
+        #edit-calendar-modal .emoji-grid {
+            gap: 8px;
+            margin-bottom: calc(1.5 * var(--spacing-unit));
+            padding: var(--spacing-unit);
+            min-height: 50px;
+        }
+        #edit-calendar-modal .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-unit);
+            margin-top: var(--spacing-unit);
+        }
+        #edit-calendar-modal .form-actions button {
+            margin: 0;
+            min-width: unset;
+        }
+
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                margin: var(--spacing-unit-mobile-md) auto; /* NEW: Use a slightly smaller margin */
+                padding: 0 var(--spacing-unit-mobile-md); /* NEW: Use a slightly smaller padding */
+            }
+            .page {
+                padding: var(--spacing-unit-mobile-md); /* NEW: Use mobile specific spacing */
+                border-radius: var(--border-radius-base);
+            }
+            h1 { font-size: 2em; }
+            h2 { font-size: 1.5em; }
+            h3 { font-size: 1.2em; }
+            button { padding: 8px 12px; font-size: 0.85em; min-width: 80px; gap: 4px; }
+            
+            button.icon-button {
+                width: 36px;
+                height: 36px;
+                font-size: 1.3em;
+            }
+
+            #home-page .section-header button {
+                padding: 8px 12px; /* Smaller on mobile */
+            }
+
+            #home-page-filters .filter-inputs { 
+                flex-direction: column; /* NEW: Stack filter inputs vertically */
+                gap: var(--spacing-unit-mobile-md); 
+            }
+            #home-page-filters .filter-inputs > div {
+                min-width: unset; /* NEW: Allow full width for stacked inputs */
+            }
+            #home-page-filters .filter-inputs input {
+                width: 100%; /* NEW: Ensure full width */
+            }
+
+            #home-page-filters .filter-actions { gap: var(--spacing-unit-mobile-md); }
+
+            .calendar-item .item-actions {
+                flex-direction: row; /* Keep horizontal on mobile if space allows, icons are small */
+                justify-content: space-around; /* Distribute buttons */
+                margin-top: var(--spacing-unit);
+                gap: 6px;
+            }
+            .calendar-item .item-actions button { /* For the icon-buttons */
+                flex-grow: 0; /* Don't grow aggressively */
+                max-width: unset; /* Remove max-width */
+                width: 36px; /* Fixed size */
+                height: 36px;
+            }
+
+            #local-data-actions .action-buttons {
+                flex-direction: column; /* Stack for clarity */
+                gap: var(--spacing-unit-mobile-md);
+            }
+            #local-data-actions button {
+                max-width: unset; /* Allow full width */
+                width: 100%;
+                padding: 8px 12px;
+            }
+
+            .emoji-option { font-size: 1.8em; padding: 5px 8px; }
+            .emoji-option.selected { transform: scale(1.08); }
+
+            #calendar-view-page .calendar-header {
+                flex-direction: column;
+                align-items: center;
+                gap: var(--spacing-unit-mobile-md);
+            }
+            #calendar-view-page .calendar-header h2 {
+                font-size: 1.5em;
+                margin-bottom: 0;
+            }
+            #calendar-view-page .calendar-header .header-buttons {
+                flex-direction: row; /* Keep horizontal if possible for these two */
+                width: 100%;
+                justify-content: space-around;
+                gap: var(--spacing-unit-mobile-md);
+            }
+            #calendar-view-page .calendar-header button {
+                flex-grow: 1; /* Make them fill space better */
+            }
+
+            #calendar-nav { flex-direction: column; gap: var(--spacing-unit-mobile-md); }
+            #current-month-year { margin-bottom: var(--spacing-unit-mobile-md); font-size: 1.3em; }
+
+            .date-cell { min-height: 80px; padding: 5px; }
+            .date-number { font-size: 0.75em; padding: 1px 4px; }
+            .date-stamp { font-size: 2.5em; min-height: 30px; }
+            .date-note-preview { font-size: 0.6em; }
+
+            .stamp-option-modal { font-size: 2.5em; padding: 5px 8px; }
+            .stamp-option-modal.selected { transform: scale(1.08); }
+
+            .modal-content { padding: var(--spacing-unit-mobile-md); max-width: 400px; }
+            #modal-actions { flex-direction: column; gap: var(--spacing-unit-mobile-md); }
+            #modal-actions button { max-width: unset; width: 100%; }
+
+            #batch-actions-modal .date-inputs { 
+                flex-direction: column; 
+                gap: var(--spacing-unit-mobile-md);
+            }
+            #batch-actions-modal .date-inputs div {
+                min-width: unset; /* NEW: Allow full width for stacked inputs */
+            }
+            #batch-actions-modal .date-inputs input {
+                width: 100%; /* NEW: Ensure full width */
+            }
+
+            /* NEW: Adjust emoji grid for better wrapping on smaller screens */
+            #create-calendar-page .emoji-grid,
+            #edit-stamp-selection-container {
+                gap: var(--spacing-unit-mobile-md); /* Slightly smaller gap */
+            }
+            .emoji-option {
+                font-size: 1.6em; /* Slightly smaller emojis for tighter grid */
+                padding: 4px 6px;
+            }
+            .stamp-option-modal {
+                font-size: 2.2em; /* Adjust modal stamp size for better fit */
+                padding: 4px 6px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: var(--spacing-unit-mobile-sm) auto; /* Even smaller margin */
+                padding: 0 var(--spacing-unit-mobile-sm); /* Even smaller padding */
+            }
+            .page {
+                padding: var(--spacing-unit-mobile-sm); /* Use smallest spacing */
+            }
+            h1 { font-size: 1.6em; }
+            h2 { font-size: 1.3em; }
+            h3 { font-size: 1.1em; }
+            button { font-size: 0.8em; padding: 6px 8px; min-width: unset; }
+            
+            button.icon-button {
+                width: 32px;
+                height: 32px;
+                font-size: 1.2em;
+            }
+
+            #home-page .section-header h2 {
+                font-size: 1.3em; /* Smaller */
+            }
+            #home-page .section-header button {
+                font-size: 0.85em; /* Smaller */
+                padding: 6px 10px;
+            }
+
+            .calendar-item strong {
+                font-size: 1.2em; /* Smaller title */
+            }
+            .calendar-item .stamp-summary {
+                font-size: 0.8em; /* Smaller summary text */
+            }
+            .calendar-item .stamp-summary span {
+                font-size: 0.75em; /* Smaller stamp counts */
+                padding: 2px 5px;
+            }
+            .calendar-item .item-actions button {
+                width: 32px;
+                height: 32px;
+                font-size: 1.1em; /* Smaller icon buttons */
+            }
+
+            #local-data-actions button {
+                font-size: 0.85em; /* Smaller for clarity */
+                padding: 6px 10px;
+            }
+
+
+            .date-cell { 
+                min-height: 60px; /* NEW: Significantly reduced height for smallest screens */
+                padding: 3px; /* NEW: Reduced padding */
+            }
+            .date-number { 
+                font-size: 0.65em; /* NEW: Further reduced font size */
+                padding: 0 3px; /* NEW: Reduced padding */
+                margin-bottom: 2px; /* NEW: Less space */
+            }
+            .date-stamp { 
+                font-size: 2.2em; /* NEW: Make emoji more prominent */
+                min-height: 20px; /* NEW: Reduced min-height */
+            }
+            .date-note-preview { 
+                font-size: 0.5em; /* NEW: Very small for note preview */
+                padding-top: 2px; /* NEW: Less padding */
+                min-height: 1em; /* NEW: Reduced min-height */
+            }
+            .day-name {
+                padding: 8px 2px; /* NEW: Reduced padding */
+                font-size: 0.8em; /* NEW: Reduced font size */
+            }
+            #calendar-grid {
+                gap: 4px; /* NEW: Even tighter gap */
+                padding: var(--spacing-unit-mobile-sm); /* NEW: Smaller padding */
+            }
+
+            .emoji-option { font-size: 1.4em; padding: 3px 5px; } /* NEW: Smaller for tighter grid */
+            .stamp-option-modal { font-size: 1.8em; padding: 3px 5px; } /* NEW: Smaller modal stamps */
+            .modal-content {
+                padding: var(--spacing-unit-mobile-sm); /* NEW: Smallest modal padding */
+                max-width: 320px; /* NEW: Tighter max width for very small screens */
+            }
+            .modal-stamp-options-container {
+                max-height: 150px; /* NEW: Reduced max height */
+                gap: 6px; /* NEW: Tighter stamp gap */
+                padding: 6px; /* NEW: Reduced padding */
+            }
+            .modal-content h3 {
+                font-size: 1.2em; /* NEW: Smaller modal heading */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="home-page" class="page">
+            <h1>🗓️ Checkoff Calendars</h1>
+            
+            <div class="section-header">
+                <h2>Your Calendars</h2>
+                <button id="create-calendar-btn">✨ Create New Calendar</button>
+            </div>
+            
+            <div id="home-page-filters">
+                <h3>Filter Stamp Summaries by Date Range</h3>
+                <div class="filter-inputs">
+                    <div>
+                        <label for="home-start-date-filter">Start Date:</label>
+                        <input type="date" id="home-start-date-filter">
+                    </div>
+                    <div>
+                        <label for="home-end-date-filter">End Date:</label>
+                        <input type="date" id="home-end-date-filter">
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button id="apply-home-filter-btn">Apply Filter</button>
+                    <button id="reset-home-filter-btn" class="secondary">Reset Filter</button>
+                </div>
+            </div>
+
+            <div id="calendar-list">
+                <p id="no-calendars-message">No calendars created yet. Click 'Create New Calendar' to get started!</p>
+            </div>
+
+            <hr>
+            <div id="local-data-actions">
+                <h3>Data Management</h3>
+                <div class="action-buttons">
+                    <button id="export-data-btn" class="secondary">⬇️ Export Data</button>
+                    <input type="file" id="import-data-input" accept=".json" style="display: none;">
+                    <button id="import-data-btn" class="secondary">⬆️ Import Data</button>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="create-calendar-page" class="page">
+            <h1>Create New Calendar</h1>
+            <label for="calendar-name-input">Calendar Name:</label>
+            <input type="text" id="calendar-name-input" placeholder="e.g., Daily Habits, Reading Goals, Workout Log" required>
+
+            <label>Select Stamps (emojis) for this Calendar:</label>
+            <p style="font-size: 0.9em; color: var(--secondary-color);">Click to select/deselect. You need at least one stamp.</p>
+            <div id="stamp-selection-container" class="emoji-grid">
+                <!-- Emojis will be loaded here -->
+            </div>
+            <div class="form-actions">
+                <button id="cancel-create-calendar" class="secondary">Cancel</button>
+                <button id="create-new-calendar-submit">Create Calendar</button>
+            </div>
+        </div>
+
+        <div id="calendar-view-page" class="page">
+            <div class="calendar-header">
+                <button id="back-to-home-btn" class="secondary">← Home</button>
+                <h2 id="calendar-name-display"></h2>
+                <button id="open-batch-actions-btn">🛠️ Batch Actions</button>
+            </div>
+            
+            <div id="calendar-nav">
+                <button id="prev-month-btn">← Previous</button>
+                <span id="current-month-year"></span>
+                <button id="next-month-btn">Next →</button>
+            </div>
+            <div id="calendar-grid">
+                <!-- Calendar days will be generated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Single Date Stamp Picker Modal -->
+    <div id="stamp-picker-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="close-stamp-picker-btn">&times;</span>
+            <h3>Select Stamp & Add Note for <span id="modal-date-display"></span></h3>
+            <label for="note-input">Note:</label>
+            <textarea id="note-input" rows="3" placeholder="Add a short note for this date..."></textarea>
+
+            <label>Select Stamp:</label>
+            <div id="stamp-options-container" class="modal-stamp-options-container">
+                <!-- Stamps for the current calendar will be loaded here -->
+            </div>
+            <div id="modal-actions">
+                <button id="clear-stamp-btn" class="red">Clear Stamp & Note</button>
+                <button id="save-stamp-note-btn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Batch Actions Modal -->
+    <div id="batch-actions-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="close-batch-actions-btn">&times;</span>
+            <h3>Apply Batch Actions</h3>
+
+            <div class="date-inputs">
+                <div>
+                    <label for="batch-start-date-input">Start Date:</label>
+                    <input type="date" id="batch-start-date-input" required>
+                </div>
+                <div>
+                    <label for="batch-end-date-input">End Date:</label>
+                    <input type="date" id="batch-end-date-input" required>
+                </div>
+            </div>
+
+            <label>Select Stamp to Apply (Optional, leave blank to only clear):</label>
+            <div id="batch-stamp-selection-container" class="modal-stamp-options-container">
+                <!-- Stamps for the current calendar will be loaded here -->
+            </div>
+            <p style="font-size: 0.85em; color: var(--secondary-color);">
+                Selecting a stamp will fill dates. Not selecting a stamp and clicking "Apply Selected Stamp" will clear stamps.
+            </p>
+
+            <div id="batch-modal-actions" class="modal-actions">
+                <button id="apply-batch-stamp-btn">Apply Selected Stamp</button>
+                <button id="clear-batch-entries-btn" class="red">Clear All Entries in Range</button>
+                <button id="cancel-batch-actions-btn" class="secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Calendar Modal -->
+    <div id="edit-calendar-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="close-edit-calendar-btn">&times;</span>
+            <h3>Edit Calendar: <span id="edit-modal-calendar-name-display"></span></h3>
+            <label for="edit-calendar-name-input">Calendar Name:</label>
+            <input type="text" id="edit-calendar-name-input" required>
+
+            <label>Select Stamps (emojis) for this Calendar:</label>
+            <p style="font-size: 0.9em; color: var(--secondary-color);">Click to select/deselect. You need at least one stamp.</p>
+            <div id="edit-stamp-selection-container" class="emoji-grid">
+                <!-- Emojis will be loaded here -->
+            </div>
+            <div class="form-actions">
+                <button id="cancel-edit-calendar" class="secondary">Cancel</button>
+                <button id="save-edited-calendar-submit">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // --- Global Variables ---
+        const PRELOADED_EMOJIS = [
+            '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', 
+            '✅', '⭐️', '🏆', '🎉', '🌟', '✨', '💡', '🌱', '💪', '🏃‍♀️', '🚶‍♂️', '🧘', '📚', '✍️', '💻', '💰', '🏡', '🍔', '🥗',
+            '💧', '😴', '🧠', '❤️', '🎨', '🎵', '🗣️', '🧑‍💻', '🧹', '🧺', '🍳', '🐕', '🐈', '🚿', '🚗', '✈️', '⛵', '🗺️', '📝', '📅',
+            '❌', '➖', '⏸️', '🛑', '🗑️', '❓', '❕', '📈', '📉', '💯', '🔥', '☀️', '☁️', '🌧️', '⚡',
+            '🍎', '🍊', '🍓', '🥕', '🍞', '🥛', '☕', '🍵', '🍕', '🌮', '🍣', '🍜', '🍩', '🍪', '🎂', '🎁', '🎈', '💖', '💙',
+            '💚', '💛', '💜', '🧡', '🤎', '🖤', '🤍', '👍', '👎', '👋', '🙏', '👏', '🥳', '🥲', '🤩', '🤯',
+            '🥹', '🫠', '🫨', '🩷', '🩵', '🩶'
+        ];
+        let calendars = []; // Array to store all calendar data
+        let currentCalendarId = null; // ID of the calendar currently being viewed
+        let currentYear, currentMonth; // For the calendar view
+        let clickedDateForStampPicker = null; // Stores the YYYY-MM-DD string for the date being stamped
+        let selectedStampInModal = null; // Stores the currently selected stamp in the single date modal
+        let selectedBatchStamp = null; // Stores the currently selected stamp in the batch modal
+        let selectedEmojisForNewCalendar = []; // For create calendar page
+        let selectedEmojisForEditCalendar = []; // For edit calendar modal
+        let editingCalendarId = null; // ID of the calendar currently being edited
+
+        // --- DOM Elements ---
+        const homePage = document.getElementById('home-page');
+        const createCalendarPage = document.getElementById('create-calendar-page');
+        const calendarViewPage = document.getElementById('calendar-view-page');
+        const createCalendarBtn = document.getElementById('create-calendar-btn');
+        const calendarList = document.getElementById('calendar-list');
+        const noCalendarsMessage = document.getElementById('no-calendars-message');
+
+        // Home page filter elements
+        const homeStartDateFilterInput = document.getElementById('home-start-date-filter');
+        const homeEndDateFilterInput = document.getElementById('home-end-date-filter');
+        const applyHomeFilterBtn = document.getElementById('apply-home-filter-btn');
+        const resetHomeFilterBtn = document.getElementById('reset-home-filter-btn');
+
+
+        const calendarNameInput = document.getElementById('calendar-name-input');
+        const stampSelectionContainer = document.getElementById('stamp-selection-container'); // for create new cal
+        const createNewCalendarSubmitBtn = document.getElementById('create-new-calendar-submit');
+        const cancelCreateCalendarBtn = document.getElementById('cancel-create-calendar');
+
+        const backToHomeBtn = document.getElementById('back-to-home-btn');
+        const openBatchActionsBtn = document.getElementById('open-batch-actions-btn');
+        const calendarNameDisplay = document.getElementById('calendar-name-display');
+        const prevMonthBtn = document.getElementById('prev-month-btn');
+        const nextMonthBtn = document.getElementById('next-month-btn');
+        const currentMonthYearDisplay = document.getElementById('current-month-year');
+        const calendarGrid = document.getElementById('calendar-grid');
+
+        // Single date stamp picker modal
+        const stampPickerModal = document.getElementById('stamp-picker-modal');
+        const modalDateDisplay = document.getElementById('modal-date-display');
+        const noteInput = document.getElementById('note-input');
+        const stampOptionsContainer = document.getElementById('stamp-options-container'); // for single date modal
+        const closeStampPickerBtn = document.getElementById('close-stamp-picker-btn');
+        const clearStampBtn = document.getElementById('clear-stamp-btn');
+        const saveStampNoteBtn = document.getElementById('save-stamp-note-btn');
+
+        // Batch actions modal
+        const batchActionsModal = document.getElementById('batch-actions-modal');
+        const closeBatchActionsBtn = document.getElementById('close-batch-actions-btn');
+        const batchStartDateInput = document.getElementById('batch-start-date-input');
+        const batchEndDateInput = document.getElementById('batch-end-date-input');
+        const batchStampSelectionContainer = document.getElementById('batch-stamp-selection-container'); // for batch modal
+        const applyBatchStampBtn = document.getElementById('apply-batch-stamp-btn');
+        const clearBatchEntriesBtn = document.getElementById('clear-batch-entries-btn');
+        const cancelBatchActionsBtn = document.getElementById('cancel-batch-actions-btn');
+
+        // Edit calendar modal
+        const editCalendarModal = document.getElementById('edit-calendar-modal');
+        const closeEditCalendarBtn = document.getElementById('close-edit-calendar-btn');
+        const editModalCalendarNameDisplay = document.getElementById('edit-modal-calendar-name-display');
+        const editCalendarNameInput = document.getElementById('edit-calendar-name-input');
+        const editStampSelectionContainer = document.getElementById('edit-stamp-selection-container');
+        const saveEditedCalendarSubmitBtn = document.getElementById('save-edited-calendar-submit');
+        const cancelEditCalendarBtn = document.getElementById('cancel-edit-calendar');
+
+
+        // Local Data Action Elements
+        const exportDataBtn = document.getElementById('export-data-btn');
+        const importDataBtn = document.getElementById('import-data-btn');
+        const importDataInput = document.getElementById('import-data-input');
+
+
+        // --- Helper Functions ---
+
+        // Generate a unique ID (simple timestamp based)
+        function generateId() {
+            return 'cal_' + Date.now();
+        }
+
+        // Save calendars to localStorage
+        function saveCalendars() {
+            localStorage.setItem('checkoffCalendars', JSON.stringify(calendars));
+        }
+
+        // Load calendars from localStorage with backward compatibility
+        function loadCalendars() {
+            const storedCalendars = localStorage.getItem('checkoffCalendars');
+            if (storedCalendars) {
+                calendars = JSON.parse(storedCalendars);
+                // Backward compatibility: Convert old stamp strings to objects
+                calendars.forEach(cal => {
+                    for (const dateKey in cal.dates) {
+                        if (typeof cal.dates[dateKey] === 'string') {
+                            cal.dates[dateKey] = { stamp: cal.dates[dateKey], note: '' };
+                        }
+                    }
+                });
+            }
+        }
+
+        /**
+         * Formats a YYYY-MM-DD date string to MM/DD/YY for display.
+         * Note: input type="date" elements' displayed format (e.g., 'MM/DD/YYYY' or 'DD/MM/YYYY')
+         * is primarily controlled by the user's browser/OS locale settings, not directly by
+         * this function or the 'placeholder' attribute. This function only affects
+         * text displays outside of the native date input picker. The internal value
+         * of an <input type="date"> remains YYYY-MM-DD.
+         */
+        function formatDateForDisplay(dateStringYYYYMMDD) {
+            if (!dateStringYYYYMMDD) return '';
+            const parts = dateStringYYYYMMDD.split('-'); // [YYYY, MM, DD]
+            if (parts.length === 3) {
+                const yearShort = parts[0].substring(2); // Get last two digits of the year (YY)
+                return `${parts[1]}/${parts[2]}/${yearShort}`; // MM/DD/YY
+            }
+            return dateStringYYYYMMDD; // Fallback if format is unexpected
+        }
+
+        // Format a Date object to YYYY-MM-DD (internal storage format)
+        function formatDateToYYYYMMDD(date) {
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+            const dd = String(date.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        // Format date to Month Year (e.g., "October 2023") - using en-GB locale for consistency
+        function formatMonthYear(year, month) {
+            const date = new Date(year, month);
+            return date.toLocaleString('en-GB', { month: 'long', year: 'numeric' });
+        }
+
+        // Get all dates in a range (inclusive) in YYYY-MM-DD format
+        function getDatesInRange(startDateStr, endDateStr) {
+            const dates = [];
+            // Parse dates ensuring T00:00:00 to avoid timezone issues for comparison
+            const currentDate = new Date(startDateStr + 'T00:00:00');
+            const endDate = new Date(endDateStr + 'T00:00:00');
+
+            if (isNaN(currentDate.getTime()) || isNaN(endDate.getTime())) {
+                return []; // Invalid dates
+            }
+            if (currentDate > endDate) {
+                return []; // Start date after end date
+            }
+
+            // Loop and add dates
+            let loopDate = new Date(currentDate); // Create a copy to avoid modifying original
+            while (loopDate <= endDate) {
+                dates.push(formatDateToYYYYMMDD(loopDate));
+                loopDate.setDate(loopDate.getDate() + 1); // Move to next day
+            }
+            return dates;
+        }
+
+
+        // --- Page Navigation ---
+        function showPage(pageElement) {
+            homePage.style.display = 'none';
+            createCalendarPage.style.display = 'none';
+            calendarViewPage.style.display = 'none';
+            // Ensure all modals are hidden when changing pages
+            closeStampPicker();
+            closeBatchActionsModal();
+            closeEditCalendarModal(); // Close edit modal too
+
+            pageElement.style.display = 'block';
+        }
+
+        function handleHashChange() {
+            const hash = window.location.hash;
+            if (hash === '#home' || hash === '') {
+                showPage(homePage);
+                renderHomePage();
+            } else if (hash === '#create') {
+                showPage(createCalendarPage);
+                renderCreateCalendarForm();
+            } else if (hash.startsWith('#calendar_')) {
+                currentCalendarId = hash.substring(10);
+                // Set initial month/year to today if not already set for this calendar view
+                const today = new Date();
+                currentYear = today.getFullYear();
+                currentMonth = today.getMonth();
+                showPage(calendarViewPage);
+                renderCalendarView();
+            } else {
+                // Default to home page if hash is unrecognized
+                window.location.hash = '#home';
+            }
+        }
+
+        // --- Home Page Functions ---
+        function calculateStampSummary(calendar, filterStartDateStr = null, filterEndDateStr = null) {
+            const stampCounts = {};
+            // Initialize counts for all available stamps in this calendar
+            calendar.stamps.forEach(stamp => {
+                stampCounts[stamp] = 0;
+            });
+
+            let filterStartDate = null;
+            let filterEndDate = null;
+
+            if (filterStartDateStr && filterEndDateStr) {
+                // Ensure valid date range for filter
+                const tempStartDate = new Date(filterStartDateStr + 'T00:00:00');
+                const tempEndDate = new Date(filterEndDateStr + 'T00:00:00');
+
+                if (isNaN(tempStartDate.getTime()) || isNaN(tempEndDate.getTime())) {
+                    // Invalid date inputs, treat as no filter
+                    filterStartDate = null;
+                    filterEndDate = null;
+                } else if (tempStartDate > tempEndDate) {
+                    // Start date is after end date, treat as no filter
+                    filterStartDate = null;
+                    filterEndDate = null;
+                } else {
+                    filterStartDate = tempStartDate;
+                    filterEndDate = tempEndDate;
+                }
+            }
+
+
+            for (const dateKey in calendar.dates) {
+                const entry = calendar.dates[dateKey];
+                // Only count if stamp exists AND is part of the calendar's currently defined stamps
+                if (entry && entry.stamp && calendar.stamps.includes(entry.stamp)) {
+                    // Check if date is within filter range
+                    if (filterStartDate && filterEndDate) {
+                        const entryDate = new Date(dateKey + 'T00:00:00'); // Convert entry date string to Date object
+                        if (entryDate >= filterStartDate && entryDate <= filterEndDate) {
+                            stampCounts[entry.stamp]++;
+                        }
+                    } else {
+                        // No filter applied, count all stamps
+                        stampCounts[entry.stamp]++;
+                    }
+                }
+            }
+
+            let summaryHtml = '';
+            let totalCount = 0;
+            // Iterate through calendar's defined stamps to maintain consistent display order
+            for (const stamp of calendar.stamps) {
+                if (stampCounts[stamp] > 0) {
+                    summaryHtml += `<span>${stamp} ${stampCounts[stamp]}</span>`;
+                    totalCount += stampCounts[stamp];
+                }
+            }
+
+            if (totalCount === 0) {
+                summaryHtml = 'No stamps used yet' + (filterStartDate && filterEndDate ? ' in this range.' : '.');
+            } else if (filterStartDate && filterEndDate) {
+                summaryHtml += ` (filtered: ${formatDateForDisplay(filterStartDateStr)} - ${formatDateForDisplay(filterEndDateStr)})`;
+            }
+            return summaryHtml;
+        }
+
+        function renderHomePage() {
+            calendarList.innerHTML = ''; // Clear previous list
+
+            // Get filter dates from inputs
+            const filterStartDate = homeStartDateFilterInput.value;
+            const filterEndDate = homeEndDateFilterInput.value;
+
+            if (calendars.length === 0) {
+                noCalendarsMessage.style.display = 'block';
+            } else {
+                noCalendarsMessage.style.display = 'none';
+                calendars.forEach(cal => {
+                    const calendarItem = document.createElement('div');
+                    calendarItem.className = 'calendar-item';
+
+                    calendarItem.innerHTML = `
+                        <div class="calendar-info">
+                            <strong>${cal.name}</strong>
+                            <div class="stamp-summary">${calculateStampSummary(cal, filterStartDate, filterEndDate)}</div>
+                        </div>
+                        <div class="item-actions">
+                            <button class="open-calendar-btn icon-button" data-id="${cal.id}" title="Open Calendar">➡️</button>
+                            <button class="edit-calendar-btn icon-button secondary" data-id="${cal.id}" title="Edit Calendar">✏️</button>
+                            <button class="delete-calendar-btn icon-button red" data-id="${cal.id}" title="Delete Calendar">🗑️</button>
+                        </div>
+                    `;
+                    calendarItem.querySelector('.open-calendar-btn').addEventListener('click', (e) => {
+                        window.location.hash = `#calendar_${e.currentTarget.dataset.id}`;
+                    });
+                    calendarItem.querySelector('.edit-calendar-btn').addEventListener('click', (e) => {
+                        openEditCalendarModal(e.currentTarget.dataset.id);
+                    });
+                    calendarItem.querySelector('.delete-calendar-btn').addEventListener('click', (e) => {
+                        deleteCalendar(e.currentTarget.dataset.id);
+                    });
+                    calendarList.appendChild(calendarItem);
+                });
+            }
+        }
+
+        function deleteCalendar(idToDelete) {
+            const calendarToDelete = findCalendarById(idToDelete);
+            if (!calendarToDelete) {
+                alert('Calendar not found.');
+                return;
+            }
+
+            if (confirm(`Are you sure you want to delete the calendar "${calendarToDelete.name}"? This action cannot be undone.`)) {
+                calendars = calendars.filter(cal => cal.id !== idToDelete);
+                saveCalendars();
+                // If the deleted calendar was the one currently viewed, navigate home
+                if (currentCalendarId === idToDelete) {
+                    currentCalendarId = null;
+                    window.location.hash = '#home'; // Force re-render of home page
+                } else {
+                    renderHomePage(); // Re-render the home page
+                }
+                alert(`Calendar "${calendarToDelete.name}" has been deleted.`);
+            }
+        }
+
+
+        // --- Create Calendar Functions ---
+        function renderCreateCalendarForm() {
+            calendarNameInput.value = '';
+            selectedEmojisForNewCalendar = [];
+            stampSelectionContainer.innerHTML = ''; // Clear previous emojis
+
+            PRELOADED_EMOJIS.forEach(emoji => {
+                const emojiSpan = document.createElement('span');
+                emojiSpan.className = 'emoji-option'; // Class for creation page
+                emojiSpan.textContent = emoji;
+                emojiSpan.addEventListener('click', () => {
+                    emojiSpan.classList.toggle('selected');
+                    if (emojiSpan.classList.contains('selected')) {
+                        selectedEmojisForNewCalendar.push(emoji);
+                    } else {
+                        selectedEmojisForNewCalendar = selectedEmojisForNewCalendar.filter(e => e !== emoji);
+                    }
+                });
+                stampSelectionContainer.appendChild(emojiSpan);
+            });
+        }
+
+        function createNewCalendar() {
+            const name = calendarNameInput.value.trim();
+            if (!name) {
+                alert('Please enter a calendar name.');
+                return;
+            }
+            if (selectedEmojisForNewCalendar.length === 0) {
+                alert('Please select at least one stamp for your calendar.');
+                return;
+            }
+
+            const newCalendar = {
+                id: generateId(),
+                name: name,
+                stamps: selectedEmojisForNewCalendar,
+                dates: {} // Stores date: {stamp, note} pairs
+            };
+
+            calendars.push(newCalendar);
+            saveCalendars();
+            window.location.hash = '#home'; // Go back to home page
+        }
+
+        // --- Calendar View Functions ---
+
+        function findCalendarById(id) {
+            return calendars.find(cal => cal.id === id);
+        }
+
+        function renderCalendarView() {
+            const calendarData = findCalendarById(currentCalendarId);
+
+            if (!calendarData) {
+                alert('Calendar not found!');
+                window.location.hash = '#home';
+                return;
+            }
+
+            calendarNameDisplay.textContent = calendarData.name;
+            currentMonthYearDisplay.textContent = formatMonthYear(currentYear, currentMonth);
+            calendarGrid.innerHTML = ''; // Clear existing grid
+
+            const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay(); // 0 for Sunday, 6 for Saturday
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            dayNames.forEach(day => {
+                const dayNameCell = document.createElement('div');
+                dayNameCell.className = 'day-name';
+                dayNameCell.textContent = day;
+                calendarGrid.appendChild(dayNameCell);
+            });
+
+            // Add empty cells for days before the 1st of the month
+            for (let i = 0; i < firstDayOfMonth; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'empty-cell';
+                calendarGrid.appendChild(emptyCell);
+            }
+
+            // Add date cells
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateCell = document.createElement('div');
+                dateCell.className = 'date-cell';
+
+                const fullDate = new Date(currentYear, currentMonth, day);
+                const dateStringYYYYMMDD = formatDateToYYYYMMDD(fullDate); // Internal date string
+                const entry = calendarData.dates[dateStringYYYYMMDD] || { stamp: '', note: '' }; // Get existing stamp and note
+
+                dateCell.innerHTML = `
+                    <div class="date-number">${day}</div>
+                    <div class="date-stamp">${entry.stamp}</div>
+                    <div class="date-note-preview">${entry.note ? entry.note : ''}</div>
+                `;
+                dateCell.dataset.date = dateStringYYYYMMDD; // Store the full date string
+                
+                dateCell.addEventListener('click', (event) => {
+                    openStampPicker(event.currentTarget.dataset.date);
+                });
+                calendarGrid.appendChild(dateCell);
+            }
+        }
+
+        function changeMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendarView();
+        }
+
+        // --- Single Date Stamp Picker Modal Functions ---
+        function openStampPicker(dateStringYYYYMMDD) {
+            // Ensure other modals are closed
+            closeBatchActionsModal();
+            closeEditCalendarModal();
+
+            clickedDateForStampPicker = dateStringYYYYMMDD;
+            modalDateDisplay.textContent = formatDateForDisplay(dateStringYYYYMMDD); // Display MM/DD/YY
+            stampOptionsContainer.innerHTML = ''; // Clear previous stamps
+            selectedStampInModal = null; // Reset selected stamp
+
+            const calendarData = findCalendarById(currentCalendarId);
+            if (!calendarData) return;
+
+            const currentEntry = calendarData.dates[dateStringYYYYMMDD] || { stamp: '', note: '' };
+            noteInput.value = currentEntry.note; // Pre-fill note
+            selectedStampInModal = currentEntry.stamp; // Set current stamp in modal
+
+            calendarData.stamps.forEach(stamp => {
+                const stampOption = document.createElement('span');
+                stampOption.className = 'stamp-option-modal'; // Class for modal stamps
+                stampOption.textContent = stamp;
+                if (stamp === selectedStampInModal) {
+                    stampOption.classList.add('selected'); // Mark as selected if it's the current one
+                }
+                stampOption.addEventListener('click', () => {
+                    // Remove 'selected' from previously selected stamp
+                    const currentSelected = stampOptionsContainer.querySelector('.stamp-option-modal.selected');
+                    if (currentSelected) {
+                        currentSelected.classList.remove('selected');
+                    }
+                    // Add 'selected' to the clicked stamp
+                    stampOption.classList.add('selected');
+                    selectedStampInModal = stamp; // Update the selected stamp
+                });
+                stampOptionsContainer.appendChild(stampOption);
+            });
+
+            stampPickerModal.classList.add('is-visible'); // Show modal with animation
+        }
+
+        function closeStampPicker() {
+            stampPickerModal.classList.remove('is-visible');
+            clickedDateForStampPicker = null; // Clear the selected date
+            selectedStampInModal = null; // Clear selected stamp in modal
+            noteInput.value = ''; // Clear note input
+        }
+
+        function saveStampAndNote() {
+            const calendarData = findCalendarById(currentCalendarId);
+            if (!calendarData || !clickedDateForStampPicker) return;
+
+            const note = noteInput.value.trim();
+            const stamp = selectedStampInModal; // Get the currently selected stamp
+
+            if (!stamp && !note) { // If both are empty, effectively clear the entry
+                 delete calendarData.dates[clickedDateForStampPicker];
+            } else {
+                 calendarData.dates[clickedDateForStampPicker] = { stamp: stamp || '', note: note }; // Ensure stamp is empty string if none selected
+            }
+            saveCalendars();
+            renderCalendarView(); // Re-render calendar to show updated stamp/note
+            closeStampPicker();
+        }
+
+        function clearStampAndNote() {
+            const calendarData = findCalendarById(currentCalendarId);
+            if (!calendarData || !clickedDateForStampPicker) return;
+
+            delete calendarData.dates[clickedDateForStampPicker]; // Remove the entry for this date
+            saveCalendars();
+            renderCalendarView();
+            closeStampPicker();
+        }
+
+        // --- Batch Actions Modal Functions ---
+        function openBatchActionsModal() {
+            // Ensure other modals are closed
+            closeStampPicker();
+            closeEditCalendarModal();
+
+            const calendarData = findCalendarById(currentCalendarId);
+            if (!calendarData) return;
+
+            // Pre-fill dates to current month's start/end for convenience
+            const today = new Date();
+            const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            batchStartDateInput.value = formatDateToYYYYMMDD(firstDayOfMonth);
+            batchEndDateInput.value = formatDateToYYYYMMDD(lastDayOfMonth);
+            
+            // Clear previous selection and populate stamps
+            batchStampSelectionContainer.innerHTML = '';
+            selectedBatchStamp = null;
+
+            calendarData.stamps.forEach(stamp => {
+                const stampOption = document.createElement('span');
+                stampOption.className = 'stamp-option-modal'; // Class for modal stamps
+                stampOption.textContent = stamp;
+                stampOption.addEventListener('click', () => {
+                    const currentSelected = batchStampSelectionContainer.querySelector('.stamp-option-modal.selected');
+                    if (currentSelected) {
+                        currentSelected.classList.remove('selected');
+                    }
+                    stampOption.classList.add('selected');
+                    selectedBatchStamp = stamp;
+                });
+                batchStampSelectionContainer.appendChild(stampOption);
+            });
+
+            batchActionsModal.classList.add('is-visible');
+        }
+
+        function closeBatchActionsModal() {
+            batchActionsModal.classList.remove('is-visible');
+            batchStartDateInput.value = '';
+            batchEndDateInput.value = '';
+            selectedBatchStamp = null; // Clear selected stamp for batch
+            // Remove 'selected' class from all stamps
+            batchStampSelectionContainer.querySelectorAll('.stamp-option-modal.selected').forEach(el => el.classList.remove('selected'));
+        }
+
+        function applyBatchStamp() {
+            const startDateStr = batchStartDateInput.value;
+            const endDateStr = batchEndDateInput.value;
+            const stampToApply = selectedBatchStamp;
+
+            if (!startDateStr || !endDateStr) {
+                alert('Please select both a start and end date.');
+                return;
+            }
+
+            const datesToProcess = getDatesInRange(startDateStr, endDateStr);
+            if (datesToProcess.length === 0) {
+                alert('Invalid date range. Ensure start date is not after end date.');
+                return;
+            }
+
+            const calendarData = findCalendarById(currentCalendarId);
+            if (!calendarData) return;
+
+            datesToProcess.forEach(dateStr => {
+                // If a stamp is selected, apply it. Otherwise, it behaves like clearing.
+                calendarData.dates[dateStr] = { stamp: stampToApply || '', note: '' }; // Apply stamp, clear note
+            });
+
+            saveCalendars();
+            renderCalendarView();
+            closeBatchActionsModal();
+            alert(`Applied stamp to ${datesToProcess.length} dates from ${formatDateForDisplay(startDateStr)} to ${formatDateForDisplay(endDateStr)}.`);
+        }
+
+        function clearBatchEntries() {
+            const startDateStr = batchStartDateInput.value;
+            const endDateStr = batchEndDateInput.value;
+
+            if (!startDateStr || !endDateStr) {
+                alert('Please select both a start and end date.');
+                return;
+            }
+
+            const datesToProcess = getDatesInRange(startDateStr, endDateStr);
+            if (datesToProcess.length === 0) {
+                alert('Invalid date range. Ensure start date is not after end date.');
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to clear all entries for ${datesToProcess.length} dates from ${formatDateForDisplay(startDateStr)} to ${formatDateForDisplay(endDateStr)}? This cannot be undone.`)) {
+                return;
+            }
+
+            const calendarData = findCalendarById(currentCalendarId);
+            if (!calendarData) return;
+
+            datesToProcess.forEach(dateStr => {
+                delete calendarData.dates[dateStr];
+            });
+
+            saveCalendars();
+            renderCalendarView();
+            closeBatchActionsModal();
+            alert(`Cleared entries for ${datesToProcess.length} dates from ${formatDateForDisplay(startDateStr)} to ${formatDateForDisplay(endDateStr)}.`);
+        }
+
+        // --- Edit Calendar Modal Functions ---
+        function openEditCalendarModal(calendarId) {
+            // Ensure other modals are closed
+            closeStampPicker();
+            closeBatchActionsModal();
+
+            editingCalendarId = calendarId;
+            const calendarData = findCalendarById(calendarId);
+            if (!calendarData) {
+                alert('Calendar not found for editing.');
+                closeEditCalendarModal();
+                return;
+            }
+
+            editModalCalendarNameDisplay.textContent = calendarData.name;
+            editCalendarNameInput.value = calendarData.name;
+            selectedEmojisForEditCalendar = [...calendarData.stamps]; // Copy current stamps
+
+            editStampSelectionContainer.innerHTML = ''; // Clear previous emojis
+
+            PRELOADED_EMOJIS.forEach(emoji => {
+                const emojiSpan = document.createElement('span');
+                emojiSpan.className = 'emoji-option'; // Class for creation/edit page
+                emojiSpan.textContent = emoji;
+                if (selectedEmojisForEditCalendar.includes(emoji)) {
+                    emojiSpan.classList.add('selected');
+                }
+                emojiSpan.addEventListener('click', () => {
+                    emojiSpan.classList.toggle('selected');
+                    if (emojiSpan.classList.contains('selected')) {
+                        selectedEmojisForEditCalendar.push(emoji);
+                    } else {
+                        selectedEmojisForEditCalendar = selectedEmojisForEditCalendar.filter(e => e !== emoji);
+                    }
+                });
+                editStampSelectionContainer.appendChild(emojiSpan);
+            });
+
+            editCalendarModal.classList.add('is-visible');
+        }
+
+        function closeEditCalendarModal() {
+            editCalendarModal.classList.remove('is-visible');
+            editingCalendarId = null;
+            editCalendarNameInput.value = '';
+            selectedEmojisForEditCalendar = [];
+            editStampSelectionContainer.innerHTML = '';
+        }
+
+        function saveEditedCalendar() {
+            const calendarData = findCalendarById(editingCalendarId);
+            if (!calendarData) {
+                alert('Error: Calendar not found during save.');
+                return;
+            }
+
+            const newName = editCalendarNameInput.value.trim();
+            if (!newName) {
+                alert('Calendar name cannot be empty.');
+                return;
+            }
+            if (selectedEmojisForEditCalendar.length === 0) {
+                alert('Please select at least one stamp for your calendar.');
+                return;
+            }
+
+            calendarData.name = newName;
+            calendarData.stamps = selectedEmojisForEditCalendar;
+            saveCalendars();
+            renderHomePage(); // Re-render home page to show updated name/summary
+            
+            // If the edited calendar is the one currently in view, update its display
+            if (currentCalendarId === editingCalendarId) {
+                renderCalendarView(); // Re-render calendar view with new stamps/name
+            }
+            
+            closeEditCalendarModal();
+            alert('Calendar updated successfully!');
+        }
+
+
+        // --- Local Export/Import Functions ---
+
+        function exportCalendarsToJson() {
+            const dataStr = JSON.stringify(calendars, null, 2); // Pretty print JSON
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'checkoff_calendars_backup.json';
+            document.body.appendChild(a); // Required for Firefox
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url); // Clean up
+            alert('Your calendars have been exported as "checkoff_calendars_backup.json"');
+        }
+
+        function importCalendarsFromJson(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                return; // No file selected
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    if (!Array.isArray(importedData)) {
+                        throw new Error('Imported file is not in the expected array format.');
+                    }
+
+                    if (!confirm('Importing will overwrite your current local calendars. Are you sure?')) {
+                        return;
+                    }
+
+                    // Apply backward compatibility logic if necessary for restored data
+                    importedData.forEach(cal => {
+                        if (cal.dates) {
+                            for (const dateKey in cal.dates) {
+                                if (typeof cal.dates[dateKey] === 'string') {
+                                    cal.dates[dateKey] = { stamp: cal.dates[dateKey], note: '' };
+                                }
+                            }
+                        }
+                    });
+
+                    calendars = importedData; // Overwrite local calendars array
+                    saveCalendars(); // Save to localStorage
+                    renderHomePage(); // Re-render the home page
+                    alert('Calendars imported successfully!');
+
+                } catch (error) {
+                    console.error('Error importing calendars:', error);
+                    alert('Error importing calendars: ' + (error.message || 'Invalid JSON file.'));
+                } finally {
+                    // Clear the file input value so the same file can be selected again
+                    importDataInput.value = '';
+                }
+            };
+            reader.onerror = () => {
+                alert('Failed to read file.');
+                importDataInput.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        // --- Event Listeners ---
+        window.addEventListener('hashchange', handleHashChange);
+        window.addEventListener('load', () => {
+            loadCalendars(); // Load from localStorage on initial load
+            handleHashChange(); // Initial page load
+        });
+
+        // Home Page
+        createCalendarBtn.addEventListener('click', () => {
+            window.location.hash = '#create';
+        });
+        // Home Page Filter Listeners
+        applyHomeFilterBtn.addEventListener('click', renderHomePage);
+        resetHomeFilterBtn.addEventListener('click', () => {
+            homeStartDateFilterInput.value = '';
+            homeEndDateFilterInput.value = '';
+            renderHomePage(); // Re-render with cleared filters
+        });
+
+        // Local Data Action Buttons
+        exportDataBtn.addEventListener('click', exportCalendarsToJson);
+        importDataBtn.addEventListener('click', () => {
+            importDataInput.click(); // Programmatically click the hidden file input
+        });
+        importDataInput.addEventListener('change', importCalendarsFromJson);
+
+
+        // Create Calendar Page
+        createNewCalendarSubmitBtn.addEventListener('click', createNewCalendar);
+        cancelCreateCalendarBtn.addEventListener('click', () => {
+            window.location.hash = '#home';
+        });
+
+        // Calendar View Page
+        backToHomeBtn.addEventListener('click', () => {
+            window.location.hash = '#home';
+        });
+        prevMonthBtn.addEventListener('click', () => changeMonth(-1));
+        nextMonthBtn.addEventListener('click', () => changeMonth(1));
+        openBatchActionsBtn.addEventListener('click', openBatchActionsModal);
+
+        // Single Date Stamp Picker Modal
+        closeStampPickerBtn.addEventListener('click', closeStampPicker);
+        clearStampBtn.addEventListener('click', clearStampAndNote);
+        saveStampNoteBtn.addEventListener('click', saveStampAndNote);
+        stampPickerModal.addEventListener('click', (event) => {
+            if (event.target === stampPickerModal) {
+                closeStampPicker();
+            }
+        });
+
+        // Batch Actions Modal
+        closeBatchActionsBtn.addEventListener('click', closeBatchActionsModal);
+        cancelBatchActionsBtn.addEventListener('click', closeBatchActionsModal);
+        applyBatchStampBtn.addEventListener('click', applyBatchStamp);
+        clearBatchEntriesBtn.addEventListener('click', clearBatchEntries);
+        batchActionsModal.addEventListener('click', (event) => {
+            if (event.target === batchActionsModal) {
+                closeBatchActionsModal();
+            }
+        });
+
+        // Edit Calendar Modal
+        closeEditCalendarBtn.addEventListener('click', closeEditCalendarModal);
+        cancelEditCalendarBtn.addEventListener('click', closeEditCalendarModal);
+        saveEditedCalendarSubmitBtn.addEventListener('click', saveEditedCalendar);
+        editCalendarModal.addEventListener('click', (event) => {
+            if (event.target === editCalendarModal) {
+                closeEditCalendarModal();
+            }
+        });
+
+
+        // Add keyboard escape to close any visible modal
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                if (stampPickerModal.classList.contains('is-visible')) {
+                    closeStampPicker();
+                }
+                if (batchActionsModal.classList.contains('is-visible')) {
+                    closeBatchActionsModal();
+                }
+                if (editCalendarModal.classList.contains('is-visible')) {
+                    closeEditCalendarModal();
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>
